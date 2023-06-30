@@ -1,14 +1,27 @@
 {
-  "name": "datetime",
+  "name": "CSMTools",
   "version": "1.0",
   "description": "Build a Datetime Extension!",
   "permissions": [
-    "declarativeContent"
+    "declarativeContent",
+    "activeTab",
+    "scripting"
   ],
   "manifest_version": 3,
   "background": {
     "service_worker": "background.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["https://steamcommunity.com/id/*/inventory/"],
+      "js": ["loadInventory.js"],
+      "runAt": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [{
+    "resources": ["inventoryInjection.js"],
+    "matches": ["<all_urls>"]
+  }],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

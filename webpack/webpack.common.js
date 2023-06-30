@@ -9,6 +9,8 @@ module.exports = {
   entry: {
     popup: path.join(__dirname, `../${SRC_DIR_NAME}/popup.ts`),
     background: path.join(__dirname, `../${SRC_DIR_NAME}/background/${browser}/background.ts`),
+    loadInventory: path.join(__dirname, `../${SRC_DIR_NAME}/content_scripts/load-inventory.ts`),
+    inventoryInjection: path.join(__dirname, `../${SRC_DIR_NAME}/injections/inventory-inject.ts`),
   },
   output: {
     path: path.join(__dirname, `../${BUILD_DIR_NAME}`),
