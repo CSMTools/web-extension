@@ -1,4 +1,4 @@
-import { getFadeName, getGradient } from '../lib/fades';
+import { getFadeName, getGradient } from '@csmtools/fadegradients';
 import htmlEngine from '../lib/html-engine';
 import { generateId } from '../lib/utils';
 import inventoryOverlay from '../templates/inventory-overlay';
