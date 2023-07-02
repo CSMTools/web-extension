@@ -13,13 +13,14 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://steamcommunity.com/id/*/inventory/"],
-      "js": ["loadInventory.js"],
+      "matches": ["*://steamcommunity.com/id/*/inventory*","*://steamcommunity.com/profiles/*/inventory*"],
+      "js": ["load-inventory.js"],
+      "css": ["css/inventory.css"],
       "runAt": "document_idle"
     }
   ],
   "web_accessible_resources": [{
-    "resources": ["inventoryInjection.js"],
+    "resources": ["inventory-inject.js"],
     "matches": ["<all_urls>"]
   }],
   "action": {

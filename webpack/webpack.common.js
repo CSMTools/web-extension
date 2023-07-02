@@ -5,15 +5,17 @@ const browser = process.env.BROWSER;
 const BUILD_DIR_NAME = 'dist';
 const SRC_DIR_NAME = 'src';
 
+const output = `../${BUILD_DIR_NAME}/${browser}`;
+
 module.exports = {
   entry: {
     popup: path.join(__dirname, `../${SRC_DIR_NAME}/popup.ts`),
     background: path.join(__dirname, `../${SRC_DIR_NAME}/background/${browser}/background.ts`),
-    loadInventory: path.join(__dirname, `../${SRC_DIR_NAME}/content_scripts/load-inventory.ts`),
-    inventoryInjection: path.join(__dirname, `../${SRC_DIR_NAME}/injections/inventory-inject.ts`),
+    'load-inventory': path.join(__dirname, `../${SRC_DIR_NAME}/content_scripts/load-inventory.ts`),
+    'inventory-inject': path.join(__dirname, `../${SRC_DIR_NAME}/injections/inventory.ts`),
   },
   output: {
-    path: path.join(__dirname, `../${BUILD_DIR_NAME}`),
+    path: path.join(__dirname, output),
     filename: '[name].js',
   },
   optimization: {
@@ -37,9 +39,10 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: './images', to: `../${BUILD_DIR_NAME}/images`, context: 'public' },
-        { from: './popup.html', to: `../${BUILD_DIR_NAME}/popup.html`, context: 'public' },
-        { from: `${browser}_manifest.json`, to: `../${BUILD_DIR_NAME}/manifest.json`, context: 'public' },
+        { from: './images', to: `../${output}/images`, context: 'public' },
+        { from: './css', to: `../${output}/css`, context: 'public' },
+        { from: './popup.html', to: `../${output}/popup.html`, context: 'public' },
+        { from: `${browser}_manifest.json`, to: `../${output}/manifest.json`, context: 'public' },
       ],
     }),
   ],

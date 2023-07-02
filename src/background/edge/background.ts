@@ -1,5 +1,7 @@
 /// <reference types="chrome"/>
 
+import communicationHandler from '../../lib/background-communication';
+
 chrome.runtime.onInstalled.addListener(function () {
   // Make extension work on all pages
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
@@ -11,3 +13,5 @@ chrome.runtime.onInstalled.addListener(function () {
     ]);
   });
 });
+
+chrome.runtime.onConnect.addListener(communicationHandler);
