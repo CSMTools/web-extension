@@ -11,7 +11,7 @@ module.exports = {
   entry: {
     popup: path.join(__dirname, `../${SRC_DIR_NAME}/popup.ts`),
     background: path.join(__dirname, `../${SRC_DIR_NAME}/background/${browser}/background.ts`),
-    'load-inventory': path.join(__dirname, `../${SRC_DIR_NAME}/content_scripts/load-inventory.ts`),
+    'basic_communicator': path.join(__dirname, `../${SRC_DIR_NAME}/content_scripts/basic_communicator.ts`),
     'inventory-inject': path.join(__dirname, `../${SRC_DIR_NAME}/injections/inventory.ts`),
   },
   output: {
@@ -34,7 +34,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js'],
+    extensions: ['.ts', '.tsx', '.js', '.d.ts'],
   },
   plugins: [
     new CopyPlugin({

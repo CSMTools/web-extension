@@ -1,11 +1,17 @@
 import { getFadeName, getGradient } from '@csmtools/fadegradients';
 import htmlEngine from '../lib/html-engine';
-import { generateId } from '../lib/utils';
+import { generateId, moveToFront, observeDOM } from '../lib/utils';
 import inventoryOverlay from '../templates/inventory-overlay';
 import { ItemData } from '../types/api';
 import { MessageType, WindowMessage } from '../types/communication';
+import targetOrigins from '../data/target-origins';
+import { INV_CONTEXT } from '../data/constants';
+import detailIconOverlay from '../templates/detail-icon-overlay';
 
-const inspectedItems: string[] = [];
+const inspectedItems: { [assetId: string]: ItemData } = {};
+let selectedItemId: string = '';
+
+// Start communication stuff
 
 function fetch(...args: [RequestInfo, RequestInit?]) {
     return new Promise<string>((resolve, reject) => {
@@ -35,7 +41,7 @@ function fetch(...args: [RequestInfo, RequestInit?]) {
             content: args,
             transactionKey: transactionKey,
             type: MessageType.FETCHREQUEST
-        } as WindowMessage, 'https://steamcommunity.com/*');
+        } as WindowMessage, targetOrigins.INVENTORY);
     });
 }
 
@@ -44,68 +50,131 @@ window.addEventListener('message',
         if (m.isFromPage) {
             return;
         }
-
-        console.log(m.content);
     }, false);
 
+// End communication stuff
+
 function main() {
-    const items = UserYou.getInventory(730, 2).m_rgAssets;
-    for (const itemId in items) {
-        if (Object.prototype.hasOwnProperty.call(items, itemId)) {
-            const item = items[itemId];
+    // Weird ass casting issues with compiler causes this code to exist
+    const items: TInventoryAsset[] = (Object.values(UserYou.getInventory(...INV_CONTEXT).m_rgAssets) as TInventoryAsset[]).filter(e => typeof e !== 'function');
+    const { selectedItem } = UserYou.getInventory(...INV_CONTEXT);
 
-            // Item is not unique
-            if (item.description.commodity) {
-                continue;
-            }
+    if (selectedItem) {
+        moveToFront(items, items.findIndex(i => i.assetid === selectedItem.assetid));
+    }
 
-            // Check tags
-            if (item.description.tags.find(tag => tag.internal_name === 'Type_CustomPlayer' || tag.internal_name === 'CSGO_Type_Collectible')) {
-                continue;
-            }
+    for (const item of items) {
+        // Item is not unique
+        if (item.description.commodity) {
+            continue;
+        }
 
-            // Item can not be inspected
-            if (!item.description.actions) {
-                continue;
-            }
+        // Check tags
+        if (item.description.tags.find(tag => tag.internal_name === 'Type_CustomPlayer' || tag.internal_name === 'CSGO_Type_Collectible')) {
+            continue;
+        }
 
-            // If the item has already been inspected, continue, this can happen when not all items are loaded at first and when they're loaded it tries to inspect twice.
-            if (inspectedItems.includes(item.assetid)) {
-                continue;
-            }
+        // Item can not be inspected
+        if (!item.description.actions) {
+            continue;
+        }
 
-            const link = formatLink(item.description.actions[0].link, UserYou.strSteamId, item.assetid);
-            fetch(`http://localhost:3000/api/inspect?link=${decodeURIComponent(link)}`)
-                .then(response => {
-                    const itemData = JSON.parse(response) as ItemData;
-                    
-                    item.element.innerHTML += htmlEngine.render(inventoryOverlay, {
-                        float: itemData.paintwear.toFixed(4),
-                        fadePercentage: itemData.fadePercentage === null ? '' : itemData.fadePercentage.toFixed(2),
-                        fadeGradient: itemData.fadePercentage === null ? 'transparent' : getGradient(getFadeName(itemData.paintindex), itemData.fadePercentage)
-                    });
+        // If the item has already been inspected, continue, this can happen when not all items are loaded at first and when they're loaded it tries to inspect twice.
+        if (Object.prototype.hasOwnProperty.call(inspectedItems, item.assetid)) {
+            continue;
+        }
 
-                    inspectedItems.push(item.assetid);
-                })
-                .catch(console.log);
+        const link = formatLink(item.description.actions[0].link, UserYou.strSteamId, item.assetid);
+        fetch(`http://localhost:3000/api/inspect?link=${decodeURIComponent(link)}&additional=true`)
+            .then(response => {
+                const itemData = JSON.parse(response) as ItemData;
+
+                item.element.innerHTML += htmlEngine.render(inventoryOverlay, {
+                    float: itemData.paintwear.toFixed(4),
+                    fadePercentage: itemData.fadePercentage === null ? '' : itemData.fadePercentage.toFixed(2),
+                    fadeGradient: itemData.fadePercentage === null ? 'transparent' : getGradient(getFadeName(itemData.paintindex), itemData.fadePercentage)
+                });
+
+                inspectedItems[item.assetid] = itemData;
+
+                item.element.getElementsByTagName('a')[0]?.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    UserYou.getInventory(730, 2).SelectItem(e, undefined, UserYou.getInventory(730, 2).m_rgAssets[item.assetid], false);
+
+                    history.replaceState(0, '', `#${INV_CONTEXT[0]}_${INV_CONTEXT[1]}_${item.assetid}`);
+                });
+
+                if (UserYou.getInventory(...INV_CONTEXT).selectedItem.assetid === item.assetid) {
+                    onDOMUpdate();
+                }
+            })
+            .catch(console.log);
+    }
+}
+
+async function dressSelectedItem(item: TInventoryAsset) {
+    if (!item.description.actions || !item.description.actions[0]?.link) {
+        return;
+    }
+
+    const html = htmlEngine.render(detailIconOverlay, {
+        name: item.description.name,
+        stickers: inspectedItems[item.assetid].stickers
+    });
+
+    document.getElementsByClassName('item_desc_icon')[0].innerHTML += html;
+    document.getElementsByClassName('item_desc_icon')[1].innerHTML += html;
+
+    document.querySelector('div.descriptor > div#sticker_info')?.parentElement?.remove();
+
+    if (item.description.fraudwarnings && item.description.fraudwarnings[0]) {
+        const customName = item.description.fraudwarnings[0].match(/^Name\sTag:\s''(.*)''$/)?.[1];
+
+        if (customName) {
+            [...document.getElementsByClassName('fraud_warning_box')].forEach((el: HTMLElement) => {
+                el.innerHTML = customName;
+                el.style.paddingLeft = '5px';
+            });
         }
     }
 }
+
+function onDOMUpdate() {
+    const item = UserYou.getInventory(...INV_CONTEXT).selectedItem;
+
+    if (item && item.assetid === selectedItemId) {
+        return;
+    }
+
+    // Clean last selected item
+    document.querySelectorAll('div.sticker-holder').forEach(el => el.remove());
+
+    if (!inspectedItems[item.assetid] || !inspectedItems[item.assetid].additional) {
+        return;
+    }
+
+    selectedItemId = item.assetid;
+
+    setTimeout(() => {
+        dressSelectedItem(item);
+    });
+}
+
+observeDOM(document.getElementsByClassName('inventory_page_right')[0], onDOMUpdate);
 
 // Hopefully temporary
 let isFirstLoadDone = false;
 let delay = 0;
 function loopableDelay() {
     delay += 100;
-    console.log(Object.keys(UserYou.getInventory(730, 2).m_rgAssets).filter(k => !!k.match(/^\d+$/g)).length, UserYou.getInventory(730, 2).m_bFullyLoaded);
-    console.log(delay);
-    if (Object.keys(UserYou.getInventory(730, 2).m_rgAssets).filter(k => !!k.match(/^\d+$/g)).length > 0) {
+    if (Object.keys(UserYou.getInventory(...INV_CONTEXT).m_rgAssets).filter(k => !isNaN(parseInt(k))).length > 0) {
         if (!isFirstLoadDone) {
             main();
             isFirstLoadDone = true;
         }
 
-        if (!UserYou.getInventory(730, 2).m_bFullyLoaded) {
+        if (!UserYou.getInventory(...INV_CONTEXT).m_bFullyLoaded) {
             setTimeout(loopableDelay, delay);
         } else {
             main();

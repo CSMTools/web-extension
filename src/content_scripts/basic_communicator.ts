@@ -1,3 +1,4 @@
+import targetOrigins from '../data/target-origins';
 import { Message, MessageType, WindowMessage } from '../types/communication';
 
 if (typeof browser === 'undefined') {
@@ -6,10 +7,8 @@ if (typeof browser === 'undefined') {
     var browser = chrome;
 }
 
-// Inject script into page
-const s = document.createElement('script');
-s.src = chrome.runtime.getURL('inventory-inject.js');
-(document.head || document.documentElement).appendChild(s);
+// Inject scripts and css into page
+injectResources();
 
 // Establish communication with background and 
 const backend = browser.runtime.connect({ name: 'inventory' });
@@ -21,14 +20,14 @@ backend.postMessage({
 // Listen for messages from backend
 backend.onMessage.addListener((m: Message) => {
   if (m.type === MessageType.HANDSHAKE) {
-    console.log(m.content);
+    console.log('Handshake completed, backend is connected.');
   }
   if (m.type === MessageType.DATA) {
     window.postMessage({
         isFromPage: false,
         content: m.content,
         type: m.type
-    } as WindowMessage, 'https://steamcommunity.com/*');
+    } as WindowMessage, targetOrigins.INVENTORY);
   }
   if (m.type === MessageType.FETCHRESPONSE) {
     window.postMessage({
@@ -36,7 +35,15 @@ backend.onMessage.addListener((m: Message) => {
         content: m.content,
         transactionKey: m.transactionKey,
         type: m.type
-    } as WindowMessage, 'https://steamcommunity.com/*');
+    } as WindowMessage, targetOrigins.INVENTORY);
+  }
+  if (m.type === MessageType.ERROR) {
+    window.postMessage({
+        isFromPage: false,
+        content: m.content,
+        transactionKey: m.transactionKey,
+        type: m.type
+    } as WindowMessage, targetOrigins.INVENTORY);
   }
 });
 
@@ -58,3 +65,30 @@ window.addEventListener(
     },
     false
 );
+
+function injectResources() {
+    const s = document.createElement('script');
+    const c = document.createElement('link');
+
+    c.rel = 'stylesheet';
+
+    if (window.location.href.match(/^.+:\/\/steamcommunity\.com\/.+\/.+\/inventory.*$/)) {
+        s.src = chrome.runtime.getURL('inventory-inject.js');
+        c.href = chrome.runtime.getURL('css/inventory.css');
+
+        injectHintCSS();
+    }
+
+    (document.head || document.documentElement).appendChild(s);
+    (document.head || document.documentElement).appendChild(c);
+}
+
+
+function injectHintCSS() {
+    const c = document.createElement('link');
+
+    c.rel = 'stylesheet';
+    c.href = chrome.runtime.getURL('css/hint.min.css');
+
+    (document.head || document.documentElement).appendChild(c);
+}

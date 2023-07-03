@@ -14,13 +14,12 @@
   "content_scripts": [
     {
       "matches": ["*://steamcommunity.com/id/*/inventory*","*://steamcommunity.com/profiles/*/inventory*"],
-      "js": ["load-inventory.js"],
-      "css": ["css/inventory.css"],
+      "js": ["basic_communicator.js"],
       "runAt": "document_idle"
     }
   ],
   "web_accessible_resources": [{
-    "resources": ["inventory-inject.js"],
+    "resources": ["inventory-inject.js", "css/inventory.css", "css/hint.min.css"],
     "matches": ["<all_urls>"]
   }],
   "action": {

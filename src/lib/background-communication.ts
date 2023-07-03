@@ -1,7 +1,7 @@
 import { Message, MessageType } from '../types/communication';
 
 export default function communicationHandler(port: chrome.runtime.Port | browser.runtime.Port) {
-  port.onMessage.addListener((m: Message) => {
+  const listener = (m: Message) => {
     if (m.type === MessageType.HANDSHAKE) {
       port.postMessage({
         type: MessageType.HANDSHAKE,
@@ -34,7 +34,7 @@ export default function communicationHandler(port: chrome.runtime.Port | browser
           });
         })
         .catch(err => {
-          console.error(err);
+          console.log(err);
 
           port.postMessage({
             type: MessageType.ERROR,
@@ -43,5 +43,7 @@ export default function communicationHandler(port: chrome.runtime.Port | browser
           });
         });
     }
-  });
+  };
+
+  port.onMessage.addListener(listener);
 }

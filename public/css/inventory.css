@@ -3,7 +3,7 @@ p.float-text {
     margin-left: 2px;
     bottom: 0;
     position: absolute;
-    font-size: 11;
+    font-size: 11px;
 }
 
 p.fade-text {
@@ -12,15 +12,37 @@ p.fade-text {
     top: 0;
     right: 0;
     position: absolute;
-    font-size: 11;
+    font-size: 11px;
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
     width: fit-content;
 }
 
+div.sticker-holder {
+    margin: 0;
+    margin-right: 2px;
+    top: 0;
+    right: 0;
+    position: absolute;
+    height: fit-content;
+    max-width: 64px;
+    flex: content;
+}
+
+img.sticker {
+    transition: 0.15s;
+}
+img.sticker:hover {
+    transform: scale(1.25);
+}
+
 .contrasting-background {
     background-color: black;
     padding: 1px;
     border-radius: 4px;
+}
+
+.hint--sticker {
+    text-align: center;
 }

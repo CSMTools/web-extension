@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 import $ from 'jquery';
-import {AppId, ContextId} from './steam_constants.ts';
+import { AppId, ContextId } from './steam_constants.ts';
 
 export interface Action {
     link: string;
@@ -68,6 +68,7 @@ export interface Asset {
         type: string;
         value: string;
     }[];
+    fraudwarnings?: string[];
     icon_url: string;
     icon_url_large: string;
     id: string;
@@ -100,7 +101,7 @@ export interface Asset {
 export interface InventoryAsset {
     amount: string;
     appid: AppId;
-    assetid: string;
+    assetid: `${number}`;
     classid: string;
     contextid: string;
     description: Asset;
@@ -118,28 +119,23 @@ export interface mOwner {
 // g_ActiveInventory
 export interface CInventory {
     m_bFullyLoaded: boolean;
-    m_rgAssets: {[assetId: string]: InventoryAsset};
-    rgInventory: {[assetId: string]: Asset};
+    m_rgAssets: { [assetId: `${number}`]: InventoryAsset };
+    rgInventory: { [assetId: `${number}`]: Asset };
     m_owner?: mOwner;
     owner?: mOwner;
     selectedItem?: InventoryAsset;
-    prototype: {
-        GetInventoryLoadURL: () => string;
-        AddInventoryData: (data: any) => void;
-        ShowInventoryLoadError: () => void;
-        RetryLoad: () => any;
 
-        // Annotated by CSGOFloat, see {@link fallback.ts}
-        g_ShowInventoryLoadError: () => void;
-        g_AddInventoryData: (data: any) => void;
-        g_GetInventoryLoadURL: () => string;
+    GetInventoryLoadURL: () => string;
+    AddInventoryData: (data: any) => void;
+    ShowInventoryLoadError: () => void;
+    RetryLoad: () => any;
+    SelectItem: (event: Event, elItem: Element, rgItem: InventoryAsset, bUserAction: boolean) => void;
 
-        m_steamid: string;
-        m_appid: number;
-        m_contextid: number;
-        m_bNeedsRepagination: boolean;
-        m_$ErrorDisplay: JQuery;
-    };
+    m_steamid: string;
+    m_appid: number;
+    m_contextid: number;
+    m_bNeedsRepagination: boolean;
+    m_$ErrorDisplay: JQuery;
 }
 
 export interface CAjaxPagingControls {
@@ -186,7 +182,7 @@ export interface UserSomeone {
 export interface CurrentTradeAsset {
     amount: number;
     appid: AppId;
-    assetid: string;
+    assetid: `${number}`;
     contextid: string;
 }
 
@@ -206,11 +202,11 @@ export interface CurrentTradeStatus {
 // Declares globals available in the Steam Page Context
 declare global {
     const $J: typeof $;
-    const g_rgListingInfo: {[listingId: string]: ListingData};
+    const g_rgListingInfo: { [listingId: string]: ListingData };
     const g_rgWalletInfo: WalletInfo | undefined; // Not populated when user is signed-out
     const g_rgAssets: {
         [appId in AppId]: {
-            [contextId in ContextId]: {[assetId: string]: Asset};
+            [contextId in ContextId]: { [assetId: `${number}`]: Asset };
         };
     };
     const g_ActiveInventory: CInventory | undefined; // Only populated on Steam inventory pages
@@ -223,6 +219,7 @@ declare global {
     const UserYou: UserSomeone | undefined; // Only populated on create offer pages
     const MoveItemToTrade: (el: HTMLElement) => void; // Only populated on create offer pages
     const g_rgCurrentTradeStatus: CurrentTradeStatus;
+    type TInventoryAsset = InventoryAsset
 }
 
-export {};
+export { };

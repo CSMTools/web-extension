@@ -75,7 +75,7 @@ export function getPalette(period: DayPeriod) {
 
 // dec2hex :: Integer -> String
 // i.e. 0-255 -> '00'-'ff'
-function dec2hex (dec) {
+function dec2hex(dec) {
   return dec.toString(16).padStart(2, '0');
 }
 
@@ -84,4 +84,28 @@ export function generateId(len?: number) {
   const arr = new Uint8Array((len || 40) / 2);
   window.crypto.getRandomValues(arr);
   return Array.from(arr, dec2hex).join('');
+}
+
+/**
+ * Observes an element for changes and calls callback if any changes occur.
+ */
+export const observeDOM = (function () {
+  const { MutationObserver } = window;
+
+  return function (obj: Element, callback: MutationCallback) {
+    if (!obj || obj.nodeType !== 1) return;
+
+    // define a new observer
+    const mutationObserver = new MutationObserver(callback);
+
+    // have the observer observe for changes in children
+    mutationObserver.observe(obj, { childList: true, subtree: true });
+    return mutationObserver;
+  };
+})();
+
+export function moveToFront<T>(arr: T[], index: number) {
+  arr.unshift(arr.splice(index, 1)[0]);
+
+  return arr;
 }
