@@ -1,4 +1,5 @@
 import { getFadeName, getGradient } from '@csmtools/fadegradients';
+import { isDoppler, getDopplerType, DopplerData } from '@csmtools/dopplerutils';
 import htmlEngine from '../lib/html-engine';
 import { generateId, moveToFront, observeDOM } from '../lib/utils';
 import inventoryOverlay from '../templates/inventory-overlay';
@@ -55,6 +56,12 @@ window.addEventListener('message',
 // End communication stuff
 
 function main() {
+    function nonInspectableTransformLink(item: TInventoryAsset) {
+        item.element.getElementsByTagName('a')[0]?.addEventListener('click', () => {
+            history.replaceState(0, '', `#${INV_CONTEXT[0]}_${INV_CONTEXT[1]}_${item.assetid}`);
+        });
+    }
+
     // Weird ass casting issues with compiler causes this code to exist
     const items: TInventoryAsset[] = (Object.values(UserYou.getInventory(...INV_CONTEXT).m_rgAssets) as TInventoryAsset[]).filter(e => typeof e !== 'function');
     const { selectedItem } = UserYou.getInventory(...INV_CONTEXT);
@@ -66,16 +73,19 @@ function main() {
     for (const item of items) {
         // Item is not unique
         if (item.description.commodity) {
+            nonInspectableTransformLink(item);
             continue;
         }
 
         // Check tags
         if (item.description.tags.find(tag => tag.internal_name === 'Type_CustomPlayer' || tag.internal_name === 'CSGO_Type_Collectible')) {
+            nonInspectableTransformLink(item);
             continue;
         }
 
         // Item can not be inspected
         if (!item.description.actions) {
+            nonInspectableTransformLink(item);
             continue;
         }
 
@@ -92,7 +102,8 @@ function main() {
                 item.element.innerHTML += htmlEngine.render(inventoryOverlay, {
                     float: itemData.paintwear.toFixed(4),
                     fadePercentage: itemData.fadePercentage === null ? '' : itemData.fadePercentage.toFixed(2),
-                    fadeGradient: itemData.fadePercentage === null ? 'transparent' : getGradient(getFadeName(itemData.paintindex), itemData.fadePercentage)
+                    fadeGradient: itemData.fadePercentage === null ? 'transparent' : getGradient(getFadeName(itemData.paintindex), itemData.fadePercentage),
+                    dopplerPhase: isDoppler(itemData.paintindex) ? DopplerData[getDopplerType(itemData.paintindex)][itemData.paintindex].name : '',
                 });
 
                 inspectedItems[item.assetid] = itemData;

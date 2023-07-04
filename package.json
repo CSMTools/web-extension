@@ -41,6 +41,7 @@
     "@babel/core": "7.12.17",
     "@babel/preset-env": "7.12.11",
     "@babel/preset-typescript": "7.12.7",
+    "@csmtools/dopplerutils": "^1.1.0",
     "@csmtools/fadegradients": "^1.0.2",
     "@types/chrome": "0.0.135",
     "@types/jest": "26.0.20",
@@ -76,5 +77,6 @@
       "pnpm code:lint-fix",
       "pnpm code:prettier"
     ]
-  }
+  },
+  "dependencies": {}
 }

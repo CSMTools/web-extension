@@ -19,6 +19,15 @@ p.fade-text {
     width: fit-content;
 }
 
+p.doppler-text {
+    margin: 0;
+    margin-right: 2px;
+    top: 0;
+    right: 0;
+    position: absolute;
+    font-size: 11px;
+}
+
 div.sticker-holder {
     margin: 0;
     margin-right: 2px;
