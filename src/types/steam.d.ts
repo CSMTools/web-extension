@@ -134,6 +134,8 @@ export interface CInventory {
     m_steamid: string;
     m_appid: number;
     m_contextid: number;
+    m_cPages: number;
+    m_cItems: number;
     m_bNeedsRepagination: boolean;
     m_$ErrorDisplay: JQuery;
 }
