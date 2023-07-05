@@ -9,7 +9,7 @@ import targetOrigins from '../data/target-origins';
 import { INV_CONTEXT } from '../data/constants';
 import detailIconOverlay from '../templates/detail-icon-overlay';
 
-const inspectedItems: { [assetId: string]: ItemData } = {};
+const inspectedItems: { [assetId: string]: ItemData | null } = {};
 let selectedItemId: string = '';
 
 // Start communication stuff
@@ -71,6 +71,13 @@ function main() {
     }
 
     for (const item of items) {
+        // If the item has already been inspected, continue, this can happen when not all items are loaded at first and when they're loaded it tries to inspect twice.
+        if (Object.prototype.hasOwnProperty.call(inspectedItems, item.assetid)) {
+            continue;
+        }
+
+        inspectedItems[item.assetid] = null;
+
         // Item is not unique
         if (item.description.commodity) {
             nonInspectableTransformLink(item);
@@ -86,11 +93,6 @@ function main() {
         // Item can not be inspected
         if (!item.description.actions) {
             nonInspectableTransformLink(item);
-            continue;
-        }
-
-        // If the item has already been inspected, continue, this can happen when not all items are loaded at first and when they're loaded it tries to inspect twice.
-        if (Object.prototype.hasOwnProperty.call(inspectedItems, item.assetid)) {
             continue;
         }
 
@@ -110,6 +112,10 @@ function main() {
 
                 item.element.getElementsByTagName('a')[0]?.addEventListener('click', (e) => {
                     e.preventDefault();
+
+                    if (UserYou.getInventory(730, 2).selectedItem?.assetid === item.assetid) {
+                        return;
+                    }
 
                     UserYou.getInventory(730, 2).SelectItem(e, undefined, UserYou.getInventory(730, 2).m_rgAssets[item.assetid], false);
 
@@ -177,6 +183,13 @@ observeDOM(document.getElementsByClassName('inventory_page_right')[0], onDOMUpda
 // Hopefully temporary
 let isFirstLoadDone = false;
 let delay = 0;
+
+// Check that inventory is not private and that user has a cs inventory
+if (document.getElementById('inventory_link_730')) {
+    loopableDelay();
+}
+
+// eslint-disable-next-line no-inner-declarations
 function loopableDelay() {
     delay += 100;
     if (Object.keys(UserYou.getInventory(...INV_CONTEXT).m_rgAssets).filter(k => !isNaN(parseInt(k))).length > 0) {
@@ -194,7 +207,6 @@ function loopableDelay() {
         setTimeout(loopableDelay, delay);
     }
 }
-loopableDelay();
 
 
 function formatLink(link: string, owner: string, asset: string) {
