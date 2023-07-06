@@ -7,6 +7,7 @@ export default function communicationHandler(port: chrome.runtime.Port | browser
         type: MessageType.HANDSHAKE,
         content: 'Handshakes exchanged'
       });
+      console.log(m.content);
     }
 
     if (m.type === MessageType.FETCHREQUEST) {

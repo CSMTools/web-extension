@@ -10,7 +10,6 @@ import { INV_CONTEXT } from '../data/constants';
 import detailIconOverlay from '../templates/detail-icon-overlay';
 
 const inspectedItems: { [assetId: string]: ItemData | null } = {};
-const loadedPages: number[] = [];
 let selectedItemId: string = '';
 
 // Start communication stuff
@@ -57,6 +56,8 @@ window.addEventListener('message',
 // End communication stuff
 
 function main(items: TInventoryAsset[]) {
+    console.log(items);
+
     function nonInspectableTransformLink(item: TInventoryAsset) {
         item.element.getElementsByTagName('a')[0]?.addEventListener('click', () => {
             history.replaceState(0, '', `#${INV_CONTEXT[0]}_${INV_CONTEXT[1]}_${item.assetid}`);
@@ -99,6 +100,8 @@ function main(items: TInventoryAsset[]) {
         fetch(`http://localhost:3000/api/inspect?link=${decodeURIComponent(link)}&additional=true`)
             .then(response => {
                 const itemData = JSON.parse(response) as ItemData;
+
+                console.log(itemData);
 
                 item.element.innerHTML += htmlEngine.render(inventoryOverlay, {
                     float: itemData.paintwear.toFixed(4),
@@ -181,18 +184,14 @@ observeDOM(document.getElementsByClassName('inventory_page_right')[0], onDOMUpda
 
 function onPageSwitched() {
     const currentPage = getCurrentPage();
+    console.log(1, currentPage);
 
     if (isNaN(currentPage)) {
         return;
     }
+    console.log(2, currentPage);
 
-    if (loadedPages.includes(currentPage)) {
-        return;
-    }
-
-    loadedPages.push(currentPage);
-
-    main(getItemsOnCurrentPage(currentPage));
+    main(getItemsOnCurrentPage());
 }
 
 let delay = 0;
@@ -206,9 +205,9 @@ if (document.getElementById('inventory_link_730')) {
 function loopableDelay() {
     delay += 100;
     if (Object.keys(UserYou.getInventory(...INV_CONTEXT).m_rgAssets).filter(k => !isNaN(parseInt(k))).length > 0) {
-        main(getItemsOnCurrentPage(getCurrentPage()));
+        onPageSwitched();
 
-        observeDOM(document.getElementById('pagecontrol_cur'), onPageSwitched);
+        observeDOM(document.getElementsByClassName('pagecontrol_element pagecounts')[0], onPageSwitched);
     } else {
         setTimeout(loopableDelay, delay);
     }
@@ -222,7 +221,7 @@ function getCurrentPage(): number {
     return parseInt(document.getElementById('pagecontrol_cur').innerHTML);
 }
 
-function getItemsOnCurrentPage(currentPage: number): TInventoryAsset[] {
+/*function getItemsOnCurrentPage(currentPage: number): TInventoryAsset[] {
     const allItems = Object.values(UserYou.getInventory(730, 2).m_rgAssets).filter(i => typeof i !== 'function');
     const totalPages = UserYou.getInventory(...INV_CONTEXT).m_cPages;
     const totalItems = UserYou.getInventory(...INV_CONTEXT).m_cItems;
@@ -238,4 +237,15 @@ function getItemsOnCurrentPage(currentPage: number): TInventoryAsset[] {
 
     // Webpack casting
     return (allItems as unknown[] as TInventoryAsset[]).slice(startIndex, endIndex + 1);
+}*/
+function getItemsOnCurrentPage(): TInventoryAsset[] {
+    const inventory = UserYou.getInventory(...INV_CONTEXT).m_rgAssets;
+    const assets: TInventoryAsset[] = [];
+    const itemIds: string[] = [...document.querySelector('div.inventory_page:not([style*="display: none"])').children].map(el => el.children[0].id.replace(`${INV_CONTEXT[0]}_${INV_CONTEXT[1]}_`, ''));
+
+    itemIds.forEach(id => {
+        assets.push(inventory[id]);
+    });
+
+    return assets;
 }
