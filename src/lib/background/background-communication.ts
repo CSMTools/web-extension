@@ -1,4 +1,4 @@
-import { Message, MessageType } from '../types/communication';
+import { Message, MessageType } from '../../types/communication';
 
 export default function communicationHandler(port: chrome.runtime.Port | browser.runtime.Port) {
   const listener = (m: Message) => {
@@ -23,7 +23,6 @@ export default function communicationHandler(port: chrome.runtime.Port | browser
       fetch(...(m.content as [RequestInfo, RequestInit?]))
         .then(response => response.text())
         .then(response => {
-          console.log(response);
           if (!m.transactionKey) {
             return;
           }
@@ -34,9 +33,7 @@ export default function communicationHandler(port: chrome.runtime.Port | browser
             content: response
           });
         })
-        .catch(err => {
-          console.log(err);
-
+        .catch(() => {
           port.postMessage({
             type: MessageType.ERROR,
             transactionKey: m.transactionKey,

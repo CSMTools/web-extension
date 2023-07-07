@@ -8,6 +8,7 @@ import { MessageType, WindowMessage } from '../types/communication';
 import targetOrigins from '../data/target-origins';
 import { INV_CONTEXT } from '../data/constants';
 import detailIconOverlay from '../templates/detail-icon-overlay';
+import config from '../config';
 
 const inspectedItems: { [assetId: string]: ItemData | null } = {};
 let selectedItemId: string = '';
@@ -56,8 +57,7 @@ window.addEventListener('message',
 // End communication stuff
 
 function main(items: TInventoryAsset[]) {
-    console.log(items);
-
+    console.log(55, items);
     function nonInspectableTransformLink(item: TInventoryAsset) {
         item.element.getElementsByTagName('a')[0]?.addEventListener('click', () => {
             history.replaceState(0, '', `#${INV_CONTEXT[0]}_${INV_CONTEXT[1]}_${item.assetid}`);
@@ -97,8 +97,12 @@ function main(items: TInventoryAsset[]) {
         }
 
         const link = formatLink(item.description.actions[0].link, UserYou.strSteamId, item.assetid);
-        fetch(`http://localhost:3000/api/inspect?link=${decodeURIComponent(link)}&additional=true`)
+        fetch(`${config.api.base_url}/api/inspect?link=${decodeURIComponent(link)}&additional=true`)
             .then(response => {
+                if (JSON.parse(response)?.errorCode === 500) {
+                    return;
+                }
+                
                 const itemData = JSON.parse(response) as ItemData;
 
                 console.log(itemData);
@@ -184,12 +188,10 @@ observeDOM(document.getElementsByClassName('inventory_page_right')[0], onDOMUpda
 
 function onPageSwitched() {
     const currentPage = getCurrentPage();
-    console.log(1, currentPage);
 
     if (isNaN(currentPage)) {
         return;
     }
-    console.log(2, currentPage);
 
     main(getItemsOnCurrentPage());
 }
@@ -241,9 +243,19 @@ function getCurrentPage(): number {
 function getItemsOnCurrentPage(): TInventoryAsset[] {
     const inventory = UserYou.getInventory(...INV_CONTEXT).m_rgAssets;
     const assets: TInventoryAsset[] = [];
-    const itemIds: string[] = [...document.querySelector('div.inventory_page:not([style*="display: none"])').children].map(el => el.children[0].id.replace(`${INV_CONTEXT[0]}_${INV_CONTEXT[1]}_`, ''));
+    const itemIds: string[] = [...document.querySelector('div.inventory_page:not([style*="display: none"])').children].map(el => {
+        if (el.classList.contains('disabled')) {
+            return undefined;
+        }
+
+        return el.children[0].id.replace(`${INV_CONTEXT[0]}_${INV_CONTEXT[1]}_`, '');
+    });
 
     itemIds.forEach(id => {
+        if (!id) {
+            return;
+        }
+        
         assets.push(inventory[id]);
     });
 

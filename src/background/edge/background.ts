@@ -1,6 +1,6 @@
 /// <reference types="chrome"/>
 
-import communicationHandler from '../../lib/background-communication';
+import communicationHandler from '../../lib/background/background-communication';
 
 chrome.runtime.onInstalled.addListener(function () {
   // Make extension work on all pages

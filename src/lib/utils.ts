@@ -1,4 +1,4 @@
-import { DayPeriod } from './interface';
+import { DayPeriod } from '../types/interface';
 
 export function getDisplayDateTime() {
   const day = getDay();

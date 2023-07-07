@@ -1,4 +1,4 @@
-import { getDisplayDateTime, getPalette } from './utils';
+import { getDisplayDateTime, getPalette } from '../utils';
 
 export function renderDateTime() {
   const { date, time, period } = getDisplayDateTime();

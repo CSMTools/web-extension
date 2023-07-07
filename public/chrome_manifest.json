@@ -1,7 +1,7 @@
 {
   "name": "CSMTools",
   "version": "0.0.1",
-  "description": "Build a Datetime Extension!",
+  "description": "Counter-Strike market tools in your web browser!",
   "permissions": [
     "declarativeContent",
     "activeTab",
@@ -13,28 +13,41 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://steamcommunity.com/id/*/inventory*","*://steamcommunity.com/profiles/*/inventory*"],
-      "js": ["basic_communicator.js"],
+      "matches": [
+        "*://steamcommunity.com/id/*/inventory*",
+        "*://steamcommunity.com/profiles/*/inventory*"
+      ],
+      "js": [
+        "basic_communicator.js"
+      ],
       "runAt": "document_idle"
     }
   ],
-  "web_accessible_resources": [{
-    "resources": ["inventory-inject.js", "css/inventory.css", "css/hint.min.css"],
-    "matches": ["<all_urls>"]
-  }],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "inventory-inject.js",
+        "css/inventory.css",
+        "css/hint.min.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "images/logo/date-time-16.png",
-      "32": "images/logo/date-time-32.png",
-      "48": "images/logo/date-time-48.png",
-      "128": "images/logo/date-time-128.png"
+      "16": "images/logo/Simple_Logo_16.png",
+      "32": "images/logo/Simple_Logo_32.png",
+      "48": "images/logo/Simple_Logo_48.png",
+      "128": "images/logo/Simple_Logo_128.png"
     }
   },
   "icons": {
-    "16": "images/logo/date-time-16.png",
-    "32": "images/logo/date-time-32.png",
-    "48": "images/logo/date-time-48.png",
-    "128": "images/logo/date-time-128.png"
+    "16": "images/logo/Simple_Logo_16.png",
+    "32": "images/logo/Simple_Logo_32.png",
+    "48": "images/logo/Simple_Logo_48.png",
+    "128": "images/logo/Simple_Logo_128.png"
   }
 }
