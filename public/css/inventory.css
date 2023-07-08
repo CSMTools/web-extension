@@ -52,6 +52,12 @@ img.sticker:hover {
     border-radius: 4px;
 }
 
-.hint--sticker {
+.hint--sticker:after {
     text-align: center;
+}
+.hint--info:after {
+    background: rgba(105, 105, 105, 0.9);
+}
+.hint--info.hint--bottom:before {
+    border-bottom-color: rgba(105, 105, 105, 0.9);
 }

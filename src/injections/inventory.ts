@@ -1,6 +1,6 @@
 import { getFadeName, getGradient } from '@csmtools/fadegradients';
 import { isDoppler, getDopplerType, DopplerData } from '@csmtools/dopplerutils';
-import htmlEngine from '../lib/html-engine';
+import * as htmlEngine from '../lib/html-engine';
 import { generateId, moveToFront, observeDOM } from '../lib/utils';
 import inventoryOverlay from '../templates/inventory-overlay';
 import { ItemData } from '../types/api';
@@ -57,7 +57,6 @@ window.addEventListener('message',
 // End communication stuff
 
 function main(items: TInventoryAsset[]) {
-    console.log(55, items);
     function nonInspectableTransformLink(item: TInventoryAsset) {
         item.element.getElementsByTagName('a')[0]?.addEventListener('click', () => {
             history.replaceState(0, '', `#${INV_CONTEXT[0]}_${INV_CONTEXT[1]}_${item.assetid}`);
@@ -66,7 +65,7 @@ function main(items: TInventoryAsset[]) {
 
     const { selectedItem } = UserYou.getInventory(...INV_CONTEXT);
 
-    if (selectedItem && items.findIndex(i => i.assetid === selectedItem.assetid) > -1) {
+    if (selectedItem && items.findIndex(i => i?.assetid === selectedItem.assetid) > -1) {
         moveToFront(items, items.findIndex(i => i.assetid === selectedItem.assetid));
     }
 
@@ -184,15 +183,13 @@ function onDOMUpdate() {
     });
 }
 
-observeDOM(document.getElementsByClassName('inventory_page_right')[0], onDOMUpdate);
-
 function onPageSwitched() {
     const currentPage = getCurrentPage();
 
     if (isNaN(currentPage)) {
         return;
     }
-
+    
     main(getItemsOnCurrentPage());
 }
 
@@ -200,7 +197,18 @@ let delay = 0;
 
 // Check that inventory is not private and that user has a cs inventory
 if (document.getElementById('inventory_link_730')) {
-    loopableDelay();
+    const el = document.getElementById('inventory_link_730');
+    if (el.classList.contains('active')) {
+        loopableDelay();
+    } else {
+        // eslint-disable-next-line no-inner-declarations
+        function onClick() {
+            loopableDelay();
+            el.removeEventListener('click', onClick);
+        }
+
+        el.addEventListener('click', onClick);
+    }
 }
 
 // eslint-disable-next-line no-inner-declarations
@@ -210,6 +218,7 @@ function loopableDelay() {
         onPageSwitched();
 
         observeDOM(document.getElementsByClassName('pagecontrol_element pagecounts')[0], onPageSwitched);
+        observeDOM(document.getElementsByClassName('inventory_page_right')[0], onDOMUpdate);
     } else {
         setTimeout(loopableDelay, delay);
     }
@@ -243,7 +252,7 @@ function getCurrentPage(): number {
 function getItemsOnCurrentPage(): TInventoryAsset[] {
     const inventory = UserYou.getInventory(...INV_CONTEXT).m_rgAssets;
     const assets: TInventoryAsset[] = [];
-    const itemIds: string[] = [...document.querySelector('div.inventory_page:not([style*="display: none"])').children].map(el => {
+    const itemIds: string[] = [...document.querySelector(`div#inventory_${UserYou.strSteamId}_730_2 > div.inventory_page:not([style*="display: none"])`).children].map(el => {
         if (el.classList.contains('disabled')) {
             return undefined;
         }
