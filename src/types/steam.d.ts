@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 import $ from 'jquery';
-import { AppId, ContextId } from './steam_constants.ts';
+import type { AppId, ContextId } from './steam_constants';
 
 export interface Action {
     link: string;
