@@ -13,6 +13,7 @@ module.exports = {
     background: path.join(__dirname, `../${SRC_DIR_NAME}/background/${browser}/background.ts`),
     'basic_communicator': path.join(__dirname, `../${SRC_DIR_NAME}/content_scripts/basic_communicator.ts`),
     'inventory-inject': path.join(__dirname, `../${SRC_DIR_NAME}/injections/inventory.ts`),
+    'market-listing-inject': path.join(__dirname, `../${SRC_DIR_NAME}/injections/market-listing.ts`),
   },
   output: {
     path: path.join(__dirname, output),

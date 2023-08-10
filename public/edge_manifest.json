@@ -15,7 +15,8 @@
     {
       "matches": [
         "*://steamcommunity.com/id/*/inventory*",
-        "*://steamcommunity.com/profiles/*/inventory*"
+        "*://steamcommunity.com/profiles/*/inventory*",
+        "*://steamcommunity.com/market/listings/730/*"
       ],
       "js": [
         "basic_communicator.js"
@@ -27,6 +28,7 @@
     {
       "resources": [
         "inventory-inject.js",
+        "market-listing-inject.js",
         "css/inventory.css",
         "css/hint.min.css"
       ],

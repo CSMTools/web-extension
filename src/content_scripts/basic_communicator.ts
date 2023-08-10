@@ -96,15 +96,21 @@ function injectResources() {
     c.rel = 'stylesheet';
 
     if (window.location.href.match(/^.+:\/\/steamcommunity\.com\/.+\/.+\/inventory.*$/)) {
-        console.log(0.5);
         s.src = chrome.runtime.getURL('inventory-inject.js');
         c.href = chrome.runtime.getURL('css/inventory.css');
 
         injectHintCSS();
+    } else if (window.location.href.match(/^.+:\/\/steamcommunity\.com\/market\/listings\/730\/.*$/)) {
+        s.src = chrome.runtime.getURL('market-listing-inject.js');
     }
 
-    (document.head || document.documentElement).appendChild(s);
-    (document.head || document.documentElement).appendChild(c);
+    if (s.src) {
+        (document.head || document.documentElement).appendChild(s);
+    }
+    
+    if (c.href) {
+        (document.head || document.documentElement).appendChild(c);
+    }
 }
 
 

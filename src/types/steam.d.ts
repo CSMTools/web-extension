@@ -47,6 +47,8 @@ export interface ListingData {
     };
 }
 
+export type ListingAsset = ListingData['asset'];
+
 // g_rgWalletInfo
 export interface WalletInfo {
     success: number;

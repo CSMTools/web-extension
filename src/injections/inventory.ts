@@ -200,13 +200,10 @@ if (document.getElementById('inventory_link_730')) {
     if (el.classList.contains('active')) {
         loopableDelay();
     } else {
-        // eslint-disable-next-line no-inner-declarations
-        function onClick() {
+        el.addEventListener('click', function onClick() {
             loopableDelay();
             el.removeEventListener('click', onClick);
-        }
-
-        el.addEventListener('click', onClick);
+        });
     }
 }
 
