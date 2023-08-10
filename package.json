@@ -78,5 +78,8 @@
       "pnpm code:prettier"
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "@csmtools/types": "^1.5.2",
+    "typed-html": "^3.0.1"
+  }
 }

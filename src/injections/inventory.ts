@@ -1,14 +1,13 @@
 import { getFadeName, getGradient } from '@csmtools/fadegradients';
 import { isDoppler, getDopplerType, DopplerData } from '@csmtools/dopplerutils';
-import * as htmlEngine from '../lib/html-engine';
 import { generateId, moveToFront, observeDOM } from '../lib/utils';
-import inventoryOverlay from '../templates/inventory-overlay';
-import { ItemData } from '../types/api';
+import InventoryOverlay from '../templates/inventory-overlay';
 import { MessageType, WindowMessage } from '../types/communication';
 import targetOrigins from '../data/target-origins';
 import { INV_CONTEXT } from '../data/constants';
-import detailIconOverlay from '../templates/detail-icon-overlay';
+import DetailIconOverlay from '../templates/detail-icon-overlay';
 import config from '../config';
+import type { ItemData } from '@csmtools/types';
 
 const inspectedItems: { [assetId: string]: ItemData | null } = {};
 let selectedItemId: string = '';
@@ -106,7 +105,7 @@ function main(items: TInventoryAsset[]) {
 
                 console.log(itemData);
 
-                item.element.innerHTML += htmlEngine.render(inventoryOverlay, {
+                item.element.innerHTML += InventoryOverlay({
                     float: itemData.paintwear.toFixed(4),
                     fadePercentage: itemData.fadePercentage === null ? '' : itemData.fadePercentage.toFixed(2),
                     fadeGradient: itemData.fadePercentage === null ? 'transparent' : getGradient(getFadeName(itemData.paintindex), itemData.fadePercentage),
@@ -140,7 +139,7 @@ async function dressSelectedItem(item: TInventoryAsset) {
         return;
     }
 
-    const html = htmlEngine.render(detailIconOverlay, {
+    const html = DetailIconOverlay({
         name: item.description.name,
         stickers: inspectedItems[item.assetid].stickers
     });
@@ -211,7 +210,6 @@ if (document.getElementById('inventory_link_730')) {
     }
 }
 
-// eslint-disable-next-line no-inner-declarations
 function loopableDelay() {
     delay += 100;
     if (Object.keys(UserYou.getInventory(...INV_CONTEXT).m_rgAssets).filter(k => !isNaN(parseInt(k))).length > 0) {
@@ -232,23 +230,6 @@ function getCurrentPage(): number {
     return parseInt(document.getElementById('pagecontrol_cur').innerHTML);
 }
 
-/*function getItemsOnCurrentPage(currentPage: number): TInventoryAsset[] {
-    const allItems = Object.values(UserYou.getInventory(730, 2).m_rgAssets).filter(i => typeof i !== 'function');
-    const totalPages = UserYou.getInventory(...INV_CONTEXT).m_cPages;
-    const totalItems = UserYou.getInventory(...INV_CONTEXT).m_cItems;
-
-    const isLastPageFull = (totalItems / totalPages) === 25;
-
-    const startIndex = 25 * (currentPage - 1);
-
-    let endIndex = (25 * currentPage) - 1;
-    if (!isLastPageFull && currentPage === totalPages) {
-        endIndex -= ((25 * totalPages) - totalItems);
-    }
-
-    // Webpack casting
-    return (allItems as unknown[] as TInventoryAsset[]).slice(startIndex, endIndex + 1);
-}*/
 function getItemsOnCurrentPage(): TInventoryAsset[] {
     const inventory = UserYou.getInventory(...INV_CONTEXT).m_rgAssets;
     const assets: TInventoryAsset[] = [];

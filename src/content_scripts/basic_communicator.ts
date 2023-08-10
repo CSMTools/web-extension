@@ -96,6 +96,7 @@ function injectResources() {
     c.rel = 'stylesheet';
 
     if (window.location.href.match(/^.+:\/\/steamcommunity\.com\/.+\/.+\/inventory.*$/)) {
+        console.log(0.5);
         s.src = chrome.runtime.getURL('inventory-inject.js');
         c.href = chrome.runtime.getURL('css/inventory.css');
 

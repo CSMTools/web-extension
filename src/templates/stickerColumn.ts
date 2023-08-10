@@ -1,5 +1,21 @@
-import sticker from './sticker';
+import * as elements from 'typed-html';
 
-export default `
-@{v.stickers.map((sticker) => "${sticker}").join('');}
-`;
+import Sticker from './sticker';
+
+import type { Sticker as StickerType } from '@csmtools/types';
+
+interface StickerColumnProps {
+    stickers: StickerType[]
+}
+
+export default function StickerColumn({ stickers }: StickerColumnProps) {
+    let column = '';
+
+    for (const sticker of stickers) {
+        column += Sticker({
+            sticker
+        });
+    }
+
+    return column;
+}
