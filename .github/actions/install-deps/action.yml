@@ -2,6 +2,8 @@ runs:
   using: "composite"
   steps:
     - uses: Borales/actions-yarn@v4.2.0
+      with:
+          cmd: install # will run `yarn install` command
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
