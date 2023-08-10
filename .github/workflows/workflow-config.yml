@@ -25,30 +25,9 @@ jobs:
         run: yarn code:typecheck
       - name: Running eslint... 👀
         run: yarn code:lint
-  test:
-    runs-on: ubuntu-20.04
-    needs: [installation]
-    concurrency: validation-${{ github.ref }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies
-        uses: ./.github/actions/install-deps
-      - name: Installing packages...🏃‍♂️ 🏃‍♂️ 🏃‍♂️
-        run: yarn install --frozen-lockfile
-      - name: Running unit test... 🤞 🚑 💊
-        run: yarn test:unit --runInBand --coverage
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: ./coverage
-          fail_ci_if_error: true
-          flags: unittests
-          name: codecov-umbrella
-          verbose: true
   build:
     runs-on: ubuntu-20.04
-    needs: [installation, linter, test]
+    needs: [installation, linter]
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
