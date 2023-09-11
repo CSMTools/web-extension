@@ -95,7 +95,7 @@ function main(items: TInventoryAsset[]) {
         }
 
         const link = formatLink(item.description.actions[0].link, UserYou.strSteamId, item.assetid);
-        fetch(`${config.api.base_url}/api/inspect?link=${decodeURIComponent(link)}&additional=true`)
+        fetch(`${config.api.base_url}/inspect?link=${decodeURIComponent(link)}&additional=true`)
             .then(response => {
                 if (JSON.parse(response)?.errorCode === 500) {
                     return;
